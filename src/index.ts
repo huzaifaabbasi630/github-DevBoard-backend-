@@ -26,17 +26,24 @@ app.use(cors({
 
 app.use(express.json());
 
-// Mount github routes
-app.use('/api/github', githubRoutes);
+// Root route (Vercel ke error ko fix karne ke liye)
+app.get('/', (req, res) => {
+  res.send('DevBoard Backend is running successfully!');
+});
 
 // Health check route
 app.get('/health', (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Listen on port
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Mount github routes
+app.use('/api/github', githubRoutes);
+
+// Listen on port (Sirf local development ke liye run hoga)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
 
 export default app;
