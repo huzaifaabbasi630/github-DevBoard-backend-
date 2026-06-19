@@ -15,8 +15,15 @@ export async function getGithubProfile(req: Request, res: Response) {
     if (error.message === "User not found") {
       return res.status(404).json({ error: "GitHub user not found" });
     }
-    console.error(`Error fetching GitHub data for ${username}:`, error);
-    return res.status(500).json({ error: "Something went wrong" });
+    if (error.response) {
+      // If the error comes from GitHub API (e.g., 401 Bad Credentials, 403 Rate Limit)
+      const message = error.response.data?.message || "GitHub API Error";
+      console.error(`GitHub API Error for ${username}: ${error.response.status} - ${message}`);
+      return res.status(error.response.status).json({ error: message });
+    }
+
+    console.error(`Error fetching GitHub data for ${username}:`, error.message);
+    return res.status(500).json({ error: "Something went wrong: " + error.message });
   }
 }
 
